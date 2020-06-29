@@ -1,0 +1,97 @@
+Generate [N] equations, save their images to directory [ID] and store their Latex in .CSV file [CSVD]:
+
+python createData/save_image_and_csv.py [N] [ID] [CSVD]
+
+Example:
+
+python createData/save_image_and_csv.py 20000 data/equations_train/images data/equations_train/equations_train_latex.csv
+
+-----------------------------------
+
+Generate [N] images per symbol and store in directory [D]:
+
+python createData/save_symbols.py [D] [N]
+
+Example:
+
+python createData/save_symbols.py data/symbols_train 1500
+
+-----------------------------------
+
+Train CNN on [N] images per symbol found in directory [D]:
+
+python symbol_detection/trainCNN.py [D] [N]
+
+Example:
+
+python symbol_detection/trainCNN.py data/symbols_train 1500
+
+-----------------------------------
+
+Test CNN on [N] images per symbol found in directory [D]:
+
+python symbol_detection/evaluateCNN.py [D] [N]
+
+Example:
+
+python symbol_detection/evaluateCNN.py data/symbols_test 300
+
+-----------------------------------
+
+Find the bounding boxes of [EN] equations whose images are found in directory [ID] and store them in .json file [JSD]:
+
+python symbol_detection/predictSymbols.py [ID] [EN] [JSD]
+
+Example:
+
+python symbol_detection/predictSymbols.py data/equations_train/images 20000 data/equations_train/equations_train_sequence.json
+
+-----------------------------------
+
+Sequence and Correct bounding boxes found in .json file [JSD] and store the new bounding boxes in .json file [CD]
+
+python image_to_sequence/making_sequence.py [JSD] [CD]
+
+Example:
+
+python image_to_sequence/making_sequence.py data/equations_train/equations_train_sequence.json data/equations_train/corrected_train_sequence.json
+
+-----------------------------------
+
+Train the Seq2Seq Model using the corrected bounding boxes in [CD] and the corresponding Latex source code found in [CSVD]. Store the relevant parameters in [PAR]
+
+python seq2seq/train_seq2seq.py [CD] [CSVD] [PAR]
+
+Example:
+
+python seq2seq/train_seq2seq.py data/equations_train/corrected_train_sequence.json data/equations_train/equations_train_latex.csv seq2seq/non_grammar_approach
+
+-----------------------------------
+
+Translate the Corrected bounding boxes found in [CDtest] using training bounding boxes [CD] and training Latex source code [CSVD] using the parameters found in [PAR]. Store the predictions in .csv file [PRED]
+
+python seq2seq/test_seq2seq.py [CD] [CSVD] [PAR] [CDtest] [PRED]
+
+Example:
+
+python seq2seq/test_seq2seq.py data/equations_train/corrected_train_sequence.json data/equations_train/equations_train_latex.csv seq2seq/non_grammar_approach data/equations_test/corrected_test_sequence.json data/equations_test/test_predictions.csv
+
+-----------------------------------
+
+Apply the grammar-based algorithm. Translate bounding boxes [CDtest] using training bounding boxes [CD] and training Latex source code [CSVD] using the parameters found in [PAR]. Store the predictions in .csv file [PRED].
+
+python image_to_sequence/generate_latex_using_grammar.py [CDtest] [PRED] [CD] [CSVD] [PAR]
+
+example:
+
+python image_to_sequence/generate_latex_using_grammar.py data/equations_test/equations_test_sequence.json data/equations_test/test_predictions_grammar.csv data/simple_expressions/simple_expressions_sequence.json data/simple_expressions/simple_expressions_latex.csv seq2seq/using_grammar_approach
+
+-----------------------------------
+
+Evaluate the translation of ground truth Latex source code .csv file [CSVtest] against their predictions [PRED]:
+
+python seq2seq/evaluate_translations.py [CSVtest] [PRED]
+
+Example:
+
+python seq2seq/evaluate_translations.py data/equations_test/equations_test_latex.csv data/equations_test/test_predictions.csv
